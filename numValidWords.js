@@ -1,43 +1,39 @@
 const letters = 'abcdefghijklmnopqrstuvwxyz'
+const allLettersHash = {}
+for (let letter of letters) {
+  allLettersHash[letter] = true
+}
 
 function numValidWords(words, puzzles) {
   return puzzles.map(puzzle => checkPuzzle(words, puzzle))
 }
 
 function checkPuzzle(words, puzzle) {
-  const disAllowed = {}
-  for (let index = 0; index < letters.length; index++) {
-    const letter = letters[index]
-    if (!puzzle.includes(letter)) {
-      disAllowed[letter] = true
-    }
+  const badLetterHash = Object.assign({}, allLettersHash)
+  for (let letter of puzzle) {
+    delete badLetterHash[letter]
   }
-  let count = 0
-  words.forEach(word => {
-    if (goodWord(word, disAllowed, puzzle)) {
-      count++
-    }
-  })
-  return count
-}
 
-function goodWord(word, disAllowed, puzzle) {
-  for (let index = 0; index < word.length; index++) {
-    const letter = word[index]
-    if (disAllowed[letter]) return false
-  }
-  if (!word.includes(puzzle[0])) return false
-  return true
+  const first = puzzle[0]
+
+  let goodWords = words.filter(word => {
+    if (word.indexOf(first) === -1) return false
+    for (let index = 0; index < word.length; index++) {
+      if (badLetterHash[word[index]]) return false
+    }
+    return true
+  })
+  return goodWords.length
 }
 
 const words = []
 const puzzles = []
 
-for (let index = 0; index < 2000000; index++) {
+for (let index = 0; index < 200000; index++) {
   words.push(makeWord())
 }
 
-for (let index = 0; index < 100; index++) {
+for (let index = 0; index < 10; index++) {
   puzzles.push(makePuzzle())
 }
 
@@ -60,4 +56,8 @@ function makePuzzle() {
   return puzzle
 }
 
+console.time('runtime')
+
 console.log(numValidWords(words, puzzles))
+
+console.timeEnd('runtime')
