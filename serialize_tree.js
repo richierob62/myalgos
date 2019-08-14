@@ -30,12 +30,19 @@ const tree = new Node(
 )
 
 function serialize(root) {
-  if (!root) return 'null'
-  return serialize(root.left) + '=' + root.val + '=' + serialize(root.right)
+  if (!root) return '#'
+  return JSON.stringify({
+    [root.val]: { l: serialize(root.left), r: serialize(root.right) }
+  })
 }
 
-function deserialize(root) {}
+function deserialize(root) {
+  if (root === '#') return null
+  const obj = JSON.parse(root)
+  const key = Object.keys(obj)[0]
+  const left = deserialize(obj[key].l)
+  const right = deserialize(obj[key].r)
+  return new Node(key, left, right)
+}
 
-console.log(tree)
-console.log(serialize(tree))
-console.log(deserialize(tree))
+console.log(deserialize(serialize(tree)).left.left.val === 'left.left')
